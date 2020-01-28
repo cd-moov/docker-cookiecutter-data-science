@@ -186,7 +186,6 @@ latex_documents = [
     ('index',
      '{{ cookiecutter.repo_name }}.tex',
      u'{{ cookiecutter.project_name }} Documentation',
-     u"{{ cookiecutter.author_name }}", 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -215,8 +214,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', '{{ cookiecutter.repo_name }}', u'{{ cookiecutter.project_name }} Documentation',
-     [u"{{ cookiecutter.author_name }}"], 1)
+    ('index', '{{ cookiecutter.repo_name }}', u'{{ cookiecutter.project_name }} Documentation', 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -230,8 +228,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', '{{ cookiecutter.repo_name }}', u'{{ cookiecutter.project_name }} Documentation',
-     u"{{ cookiecutter.author_name }}", '{{ cookiecutter.project_name }}',
-     '{{ cookiecutter.description }}', 'Miscellaneous'),
+     '{{ cookiecutter.project_name }}', 'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
