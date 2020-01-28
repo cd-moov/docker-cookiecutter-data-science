@@ -1,2 +1,2 @@
 #!/bin/bash
-make create_environment
+conda env create -f environment.yml
