@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3
+.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3 freeze
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -8,7 +8,7 @@ PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 BUCKET = {{ cookiecutter.s3_bucket }}
 PROFILE = {{ cookiecutter.aws_profile }}
 PROJECT_NAME = {{ cookiecutter.repo_name }}
-PYTHON_INTERPRETER = {{ cookiecutter.python_interpreter }}
+PYTHON_VERSION = {{ cookiecutter.python_version }}
 
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -16,17 +16,44 @@ else
 HAS_CONDA=True
 endif
 
+
+
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
 
+## Update environment specification with currently installed packages
+freeze:
+	conda env export --from-history > environment.yml
+
+## Startup docker
+docker_start:
+	#! /bin/bash
+	docker-compose up -d
+	docker ps
+
+docker_clean:
+	#! /bin/bash
+	docker stop $(PROJECT_NAME)_notebook-server_1
+	docker rm `docker ps -aq`
+	docker rmi -f `docker images -q`
+
+docker_stop:
+	#! /bin/bash
+	docker stop $(PROJECT_NAME)_notebook-server_1
+
+
 ## Install Python Dependencies
 requirements: test_environment
+ifeq (True,$(HAS_CONDA))
+	conda env create -f environment.yml
+else
 	pip install -U pip setuptools wheel
 	pip install -r requirements.txt
+endif
 
 ## Make Dataset
-data: requirements
+data: #requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py
 
 ## Delete all compiled Python files
@@ -55,21 +82,13 @@ else
 endif
 
 ## Set up python interpreter environment
-create_environment:
+create_env:
 ifeq (True,$(HAS_CONDA))
-		@echo ">>> Detected conda, creating conda environment."
-ifeq (3,$(findstring 3,$(PYTHON_INTERPRETER)))
-	conda create --name $(PROJECT_NAME) python=3
+	@echo ">>> Detected conda, creating conda environment."
+	conda env create -f environment.yml
+	conda activate $(PROJECT_NAME)
 else
-	conda create --name $(PROJECT_NAME) python=2.7
-endif
-		@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
-else
-	@pip install -q virtualenv virtualenvwrapper
-	@echo ">>> Installing virtualenvwrapper if not already intalled.\nMake sure the following lines are in shell startup file\n\
-	export WORKON_HOME=$$HOME/.virtualenvs\nexport PROJECT_HOME=$$HOME/Devel\nsource /usr/local/bin/virtualenvwrapper.sh\n"
-	@bash -c "source `which virtualenvwrapper.sh`;mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER)"
-	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
+	@echo ">>> Install conda with brew."
 endif
 
 ## Test python environment is setup correctly

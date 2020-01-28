@@ -1,0 +1,24 @@
+name: {{ cookiecutter.repo_name }}
+channels:
+  - conda-forge
+  - anaconda
+  - jmcmurray
+  - defaults
+dependencies:
+  - python={{ cookiecutter.python_version }}
+  - scikit-learn
+  - numpy
+  - pandas
+  - matplotlib
+  - seaborn
+  - pandas-profiling
+  - os
+  - glob2
+  - click
+  - sphinx
+  - awscli
+  - coverage
+  - python-dotenv[version='>=0.5.1']
+  - jupyter
+  - jupyter_contrib_nbextensions
+
